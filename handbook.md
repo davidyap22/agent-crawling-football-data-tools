@@ -591,47 +591,111 @@ player_stats (Supabase)          SofaScore (浏览器 crawl)
               └────────────────────────────────┘
 ```
 
-### Terminal 命令
+### 完整命令列表
+
+#### 单球队
 
 ```bash
-# ── 单球队 ──
+# 基本用法
 npx ts-node src/crawl-team.ts "Manchester United"
-npx ts-node src/crawl-team.ts "Arsenal" --headed --debug
+npx ts-node src/crawl-team.ts "Arsenal"
+npx ts-node src/crawl-team.ts "Liverpool"
+npx ts-node src/crawl-team.ts "Chelsea"
+npx ts-node src/crawl-team.ts "Manchester City"
 
-# ── 单联赛 (自动 crawl 该联赛在 player_stats 中的所有球队) ──
+# 其他联赛球队 (team_name 必须跟 player_stats 表中的名字一致)
+npx ts-node src/crawl-team.ts "Real Madrid"
+npx ts-node src/crawl-team.ts "Barcelona"
+npx ts-node src/crawl-team.ts "Bayern München"
+npx ts-node src/crawl-team.ts "Juventus"
+npx ts-node src/crawl-team.ts "Paris Saint Germain"
+
+# 加选项
+npx ts-node src/crawl-team.ts "Manchester United" --headed          # 打开浏览器窗口
+npx ts-node src/crawl-team.ts "Manchester United" --debug           # 详细日志
+npx ts-node src/crawl-team.ts "Manchester United" --headed --debug  # 两者都要
+```
+
+#### 单联赛 (自动 crawl 该联赛在 player_stats 中的所有球队)
+
+```bash
 npx ts-node src/crawl-team.ts --league "Premier League"
-npx ts-node src/crawl-team.ts --league "La Liga" --debug
+npx ts-node src/crawl-team.ts --league "La Liga"
 npx ts-node src/crawl-team.ts --league "Bundesliga"
 npx ts-node src/crawl-team.ts --league "Serie A"
 npx ts-node src/crawl-team.ts --league "Ligue 1"
 
-# ── 5大联赛全量 ──
-npx ts-node src/crawl-team.ts --all
+# 加选项
+npx ts-node src/crawl-team.ts --league "Premier League" --headed --debug
+```
 
-# ── npm scripts 快捷方式 ──
+#### 5大联赛全量
+
+```bash
+npx ts-node src/crawl-team.ts --all
+npx ts-node src/crawl-team.ts --all --debug
+```
+
+#### npm scripts 快捷方式
+
+```bash
 npm run crawl -- "Manchester United"
 npm run crawl:league -- "Premier League"
+npm run crawl:league -- "La Liga"
+npm run crawl:league -- "Bundesliga"
+npm run crawl:league -- "Serie A"
+npm run crawl:league -- "Ligue 1"
 npm run crawl:all
+```
 
-# ── 后台跑 (推荐用 nohup) ──
+#### 后台运行 (推荐用 nohup)
+
+```bash
+# 单球队后台跑
+nohup npx ts-node src/crawl-team.ts "Manchester United" > logs/mu.log 2>&1 &
+
+# 单联赛后台跑
 nohup npx ts-node src/crawl-team.ts --league "Premier League" > logs/epl.log 2>&1 &
+nohup npx ts-node src/crawl-team.ts --league "La Liga" > logs/laliga.log 2>&1 &
+nohup npx ts-node src/crawl-team.ts --league "Bundesliga" > logs/bundesliga.log 2>&1 &
+nohup npx ts-node src/crawl-team.ts --league "Serie A" > logs/seriea.log 2>&1 &
+nohup npx ts-node src/crawl-team.ts --league "Ligue 1" > logs/ligue1.log 2>&1 &
+
+# 5大联赛全量后台跑
 nohup npx ts-node src/crawl-team.ts --all > logs/all-leagues.log 2>&1 &
+```
+
+#### 监控进度
+
+```bash
+# 实时查看日志
 tail -f logs/epl.log
+tail -f logs/all-leagues.log
+
+# 查看后台进程
+ps aux | grep crawl-team
+
+# 停止后台进程
+kill <PID>
 ```
 
 ### 自动匹配机制
 
 系统不再依赖硬编码的球队 ID，而是:
 1. 从 SofaScore 积分榜 API 自动获取当前赛季所有球队 ID
-2. 用模糊匹配将 `player_stats` 的球队名和 SofaScore 球队名对应
-3. 处理名称差异 (如 "Newcastle" ↔ "Newcastle United"，"Bayern München" ↔ "Bayern Munich")
-4. 内置别名表处理常见差异
+2. 用 5 层策略模糊匹配 `player_stats` 球队名 → SofaScore 球队名:
+   - 精确匹配 (大小写不敏感)
+   - 规范化匹配 (去口音符号)
+   - 包含关系匹配 (如 "Newcastle" ↔ "Newcastle United")
+   - 内置别名表 (如 "Bayern München" → "Bayern Munich"、"Paris Saint Germain" → "Paris Saint-Germain")
+   - 关键词重叠匹配
+3. 未匹配球员通过 SofaScore 球队球员 API (`/api/v1/team/{id}/players`) 做名字匹配
 
 ### 流程说明
 
 1. 从 `player_stats` 查询 `team_name = "Manchester United"` → 获得 21 名球员
 2. 从 `players_oddsflow_merged` 查找 `player_id → sofascore_id` 映射
-3. 没有映射的球员 → 去 SofaScore 球队页面用名字匹配
+3. 没有映射的球员 → 调 SofaScore `/api/v1/team/{id}/players` 获取球队球员列表 → 用名字匹配
 4. 对每个球员:
    - 导航到 SofaScore 球员页面
    - 拦截 3 个 API (attributes / characteristics / national-team)
@@ -708,5 +772,25 @@ sql/create-oddsflow-table.sql
 ### 准备工作
 
 1. 在 Supabase SQL Editor 执行 `sql/create-oddsflow-table.sql`
-2. 确保 `.env` 有 `SUPABASE_URL` 和 `SUPABASE_SERVICE_KEY`
-3. 运行: `npx ts-node src/crawl-team.ts "Manchester United" --headed --debug`
+2. 确保 `.env` 有 `SUPABASE_URL` 和 `SUPABASE_ANON_KEY`（或 `SUPABASE_SERVICE_KEY`）
+3. 测试单球队: `npx ts-node src/crawl-team.ts "Manchester United" --headed --debug`
+4. 确认没问题后，跑联赛: `npx ts-node src/crawl-team.ts --league "Premier League"`
+
+---
+
+## 15. GitHub 仓库
+
+```
+https://github.com/davidyap22/agent-crawling-football-data-tools
+```
+
+### 克隆 & 初始化
+
+```bash
+git clone https://github.com/davidyap22/agent-crawling-football-data-tools.git
+cd agent-crawling-football-data-tools
+npm install
+npx playwright install chromium
+cp .env.example .env
+# 编辑 .env 填入 Supabase 密钥
+```
