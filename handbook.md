@@ -61,19 +61,75 @@ sofascore-api/
 
 ---
 
-## 3. 安装 & 初始化
+## 3. 新 Mac 安装 (完整步骤)
+
+### 前置条件
+
+Mac 需要先安装好:
+- **Node.js** (v18+): `node -v` 检查版本
+- **Git**: `git --version` 检查
+- **Google Chrome**: Playwright 需要用 Chrome 浏览器
+
+如果没有 Node.js:
+```bash
+# 用 Homebrew 安装
+brew install node
+
+# 或用 nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+nvm install 20
+```
+
+### 一键安装流程
 
 ```bash
-# 1. 安装依赖
+# ── Step 1: 克隆仓库 ──
+git clone https://github.com/davidyap22/agent-crawling-football-data-tools.git
+cd agent-crawling-football-data-tools
+
+# ── Step 2: 安装依赖 ──
 npm install
+
+# ── Step 3: 安装 Playwright 浏览器 ──
 npx playwright install chromium
 
-# 2. 配置环境变量
+# ── Step 4: 配置环境变量 ──
 cp .env.example .env
-# 编辑 .env，填入 Supabase service key
 
-# 3. 在 Supabase SQL Editor 执行建表
-# 打开 sql/create-tables.sql，复制内容到 Supabase SQL Editor 执行
+# ── Step 5: 编辑 .env，填入 Supabase anon key ──
+# 用你习惯的编辑器打开 .env:
+nano .env
+# 或
+open -a TextEdit .env
+# 或
+code .env
+
+# ── Step 6: 建表 (首次才需要，如果表已存在可跳过) ──
+# 打开 Supabase Dashboard → SQL Editor
+# 复制 sql/create-tables.sql 的内容执行
+# 复制 sql/create-oddsflow-table.sql 的内容执行
+
+# ── Step 7: 创建 logs 目录 ──
+mkdir -p logs
+
+# ── Step 8: 测试 ──
+npx ts-node src/crawl-team.ts "Manchester United" --headed --debug
+```
+
+### 复制粘贴版 (全部命令)
+
+```bash
+git clone https://github.com/davidyap22/agent-crawling-football-data-tools.git
+cd agent-crawling-football-data-tools
+npm install
+npx playwright install chromium
+cp .env.example .env
+mkdir -p logs
+```
+
+然后编辑 `.env` 填入:
+```
+SUPABASE_ANON_KEY=你的anon key
 ```
 
 ### .env 配置说明
@@ -81,7 +137,7 @@ cp .env.example .env
 ```bash
 # ── 必填 ──
 SUPABASE_URL=https://wykjlhbsxparltxazxmk.supabase.co
-SUPABASE_SERVICE_KEY=your-service-key-here       # Supabase → Settings → API → service_role key
+SUPABASE_ANON_KEY=your-anon-key-here    # Supabase → Settings → API → anon public key
 
 # ── 浏览器 (可选) ──
 HEADLESS=true              # true=无头模式(后台跑), false=打开浏览器窗口(调试用)
@@ -784,13 +840,15 @@ sql/create-oddsflow-table.sql
 https://github.com/davidyap22/agent-crawling-football-data-tools
 ```
 
-### 克隆 & 初始化
+新 Mac 完整安装步骤见 **Section 3**。
 
+快速复制:
 ```bash
 git clone https://github.com/davidyap22/agent-crawling-football-data-tools.git
 cd agent-crawling-football-data-tools
 npm install
 npx playwright install chromium
 cp .env.example .env
-# 编辑 .env 填入 Supabase 密钥
+mkdir -p logs
+# 编辑 .env 填入 SUPABASE_ANON_KEY
 ```
