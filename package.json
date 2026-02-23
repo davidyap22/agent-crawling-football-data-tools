@@ -1,0 +1,34 @@
+{
+  "name": "sofascore-api",
+  "version": "1.0.0",
+  "description": "SofaScore browser data collector via Playwright network interception",
+  "main": "src/cli.ts",
+  "scripts": {
+    "start": "ts-node src/cli.ts",
+    "collect:all": "ts-node src/cli.ts all",
+    "collect:5leagues": "bash scripts/crawl-5leagues.sh",
+    "collect:epl": "ts-node src/cli.ts all --league 'Premier League'",
+    "collect:laliga": "ts-node src/cli.ts all --league 'La Liga'",
+    "collect:bundesliga": "ts-node src/cli.ts all --league 'Bundesliga'",
+    "collect:seriea": "ts-node src/cli.ts all --league 'Serie A'",
+    "collect:ligue1": "ts-node src/cli.ts all --league 'Ligue 1'",
+    "collect:ucl": "ts-node src/cli.ts all --league 'Champions League'",
+    "crawl": "ts-node src/crawl-team.ts",
+    "crawl:league": "ts-node src/crawl-team.ts --league",
+    "crawl:all": "ts-node src/crawl-team.ts --all",
+    "collect:team-stats": "ts-node src/cli.ts team-stats",
+    "collect:team-players": "ts-node src/cli.ts team-players",
+    "collect:player-profiles": "ts-node src/cli.ts player-profiles",
+    "collect:player-stats": "ts-node src/cli.ts player-stats"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.91.1",
+    "dotenv": "^17.2.4",
+    "playwright": "^1.48.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

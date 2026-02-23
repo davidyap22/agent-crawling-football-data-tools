@@ -1,0 +1,130 @@
+{
+  "description": "Common SofaScore team IDs for reference. Actual team lists are auto-discovered from standings.",
+  "leagues": {
+    "Premier League": {
+      "uniqueTournamentId": 17,
+      "teams": {
+        "35": "Manchester United",
+        "17": "Manchester City",
+        "40": "Liverpool",
+        "42": "Arsenal",
+        "33": "Chelsea",
+        "30": "Tottenham Hotspur",
+        "7": "Aston Villa",
+        "46": "Newcastle United",
+        "48": "West Ham United",
+        "15": "Brighton & Hove Albion",
+        "50": "Wolverhampton Wanderers",
+        "43": "Crystal Palace",
+        "37": "Fulham",
+        "44": "Everton",
+        "14": "Bournemouth",
+        "45": "Nottingham Forest",
+        "36": "Brentford",
+        "38": "Leicester City",
+        "31": "Ipswich Town",
+        "41": "Southampton"
+      }
+    },
+    "La Liga": {
+      "uniqueTournamentId": 8,
+      "teams": {
+        "2829": "Real Madrid",
+        "2817": "FC Barcelona",
+        "2836": "Atletico Madrid",
+        "2824": "Athletic Bilbao",
+        "2828": "Villarreal",
+        "2833": "Real Betis",
+        "2814": "Real Sociedad",
+        "2816": "Girona",
+        "2820": "Mallorca",
+        "2831": "Osasuna",
+        "2818": "Celta Vigo",
+        "2825": "Sevilla",
+        "2826": "Rayo Vallecano",
+        "2819": "Las Palmas",
+        "2832": "Getafe",
+        "2821": "Alaves",
+        "2835": "Valencia",
+        "2815": "Espanyol",
+        "2823": "Real Valladolid",
+        "2830": "Leganes"
+      }
+    },
+    "Bundesliga": {
+      "uniqueTournamentId": 35,
+      "teams": {
+        "2672": "Bayern Munich",
+        "2673": "Borussia Dortmund",
+        "2681": "Bayer Leverkusen",
+        "2671": "RB Leipzig",
+        "2679": "VfB Stuttgart",
+        "2674": "Eintracht Frankfurt",
+        "2684": "SC Freiburg",
+        "2686": "Wolfsburg",
+        "2683": "Borussia Monchengladbach",
+        "2692": "1. FC Union Berlin",
+        "2682": "Werder Bremen",
+        "2680": "1899 Hoffenheim",
+        "2685": "FC Augsburg",
+        "2687": "1. FSV Mainz 05",
+        "2676": "VfL Bochum",
+        "2675": "FC Heidenheim",
+        "2689": "FC St. Pauli",
+        "2677": "Holstein Kiel"
+      }
+    },
+    "Serie A": {
+      "uniqueTournamentId": 23,
+      "teams": {
+        "2697": "Juventus",
+        "2702": "Inter Milan",
+        "2714": "AC Milan",
+        "2700": "Napoli",
+        "2699": "Atalanta",
+        "2706": "Lazio",
+        "2698": "AS Roma",
+        "2701": "Fiorentina",
+        "2710": "Bologna",
+        "2712": "Torino",
+        "2704": "Udinese",
+        "2713": "Monza",
+        "2703": "Genoa",
+        "2695": "Cagliari",
+        "2715": "Empoli",
+        "2694": "Lecce",
+        "2707": "Hellas Verona",
+        "2709": "Parma",
+        "2696": "Como",
+        "2705": "Venezia"
+      }
+    },
+    "Ligue 1": {
+      "uniqueTournamentId": 34,
+      "teams": {
+        "1644": "Paris Saint-Germain",
+        "1641": "AS Monaco",
+        "1649": "Olympique Marseille",
+        "1643": "LOSC Lille",
+        "1645": "OGC Nice",
+        "1648": "Olympique Lyonnais",
+        "1646": "RC Lens",
+        "1654": "Stade Rennais",
+        "1651": "Stade Brestois 29",
+        "1653": "RC Strasbourg",
+        "1661": "Toulouse FC",
+        "1650": "Montpellier HSC",
+        "1657": "FC Nantes",
+        "1659": "Stade de Reims",
+        "1652": "AJ Auxerre",
+        "1656": "AS Saint-Etienne",
+        "1660": "Angers SCO",
+        "1658": "Le Havre AC"
+      }
+    },
+    "Champions League": {
+      "uniqueTournamentId": 7,
+      "note": "Teams change each season - auto-discovered from standings"
+    }
+  }
+}
