@@ -852,3 +852,91 @@ cp .env.example .env
 mkdir -p logs
 # 编辑 .env 填入 SUPABASE_ANON_KEY
 ```
+
+---
+
+## 16. 新流程: crawl-team-stats (球队统计)
+
+### 概述
+
+从 SofaScore Statistics tab 抓取球队级别统计数据 (Attacking/Passes/Defending/Other)，
+与 Supabase `team_statistics` 表的原始数据合并，写入 `oddsflow_team_statistics`。
+
+```
+team_statistics (api-sports)          SofaScore (Statistics tab)
+┌──────────────────────────┐         ┌──────────────────────────────┐
+│ team_id, team_name       │         │ Summary: rating, matches...  │
+│ form: "WWLWDW..."       │         │ Attacking: goals/game, pen...│
+│ formation: "4-3-3"      │         │ Passes: possession, acc...   │
+│ wins/draws/loses         │         │ Defending: clean sheets...   │
+│ goals_for/against        │         │ Other: duels, fouls...       │
+│ clean_sheets             │         │                              │
+│ yellow/red cards         │         │                              │
+│ venue, country, founded  │         │                              │
+└──────────┬───────────────┘         └──────────────┬───────────────┘
+           │                                        │
+           └──────────────┬─────────────────────────┘
+                          ↓
+               oddsflow_team_statistics
+               ┌────────────────────────────────┐
+               │ team_id (UNIQUE per league)     │
+               │ team_name                       │
+               │ league_name                     │
+               │ supabase_original_data (JSONB)  │
+               │ sofascore_data (JSONB)          │
+               │ data_collection_date            │
+               └────────────────────────────────┘
+```
+
+### 运行方式
+
+```bash
+# 单球队测试
+npx ts-node src/crawl-team-stats.ts --team "Arsenal"
+npx ts-node src/crawl-team-stats.ts --team "Arsenal" --headed --debug
+
+# 单联赛
+npx ts-node src/crawl-team-stats.ts --league "Premier League"
+npx ts-node src/crawl-team-stats.ts --league "La Liga" --debug
+
+# 全部联赛 (5大联赛 + 欧冠)
+npx ts-node src/crawl-team-stats.ts --all
+
+# npm scripts
+npm run crawl:team-stats -- --team "Arsenal"
+npm run crawl:team-stats:all
+```
+
+### 流程
+
+1. 从 `team_statistics` 读取球队列表 (按 league_name 筛选)
+2. 启动 Playwright Chrome → 导航 sofascore.com
+3. 对每个联赛:
+   - In-browser fetch → 获取 seasonId
+   - In-browser fetch → 获取积分榜 → SofaScore 球队 ID/slug 映射
+   - 模糊匹配 team_statistics 球队名 → SofaScore 球队
+   - 对每个球队:
+     - In-browser fetch → `/api/v1/team/{id}/unique-tournament/{tid}/season/{sid}/statistics/overall`
+     - 合并: team_statistics 原始行 + SofaScore 完整 JSON
+     - Upsert → `oddsflow_team_statistics`
+     - 等待 3 秒 (PAGE_DELAY_MS)
+4. 关闭浏览器
+
+### 建表 SQL
+
+```bash
+# 在 Supabase SQL Editor 执行:
+sql/create-oddsflow-team-stats-table.sql
+```
+
+### 时间预估
+
+- 每球队 ~5 秒 (fetch + delay)
+- 6 联赛全量 (~136 球队) ≈ 15 分钟
+
+### 关键文件
+
+| 文件 | 用途 |
+|------|------|
+| `src/crawl-team-stats.ts` | 主脚本 |
+| `sql/create-oddsflow-team-stats-table.sql` | 建表 SQL |

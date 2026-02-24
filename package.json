@@ -19,7 +19,9 @@
     "collect:team-stats": "ts-node src/cli.ts team-stats",
     "collect:team-players": "ts-node src/cli.ts team-players",
     "collect:player-profiles": "ts-node src/cli.ts player-profiles",
-    "collect:player-stats": "ts-node src/cli.ts player-stats"
+    "collect:player-stats": "ts-node src/cli.ts player-stats",
+    "crawl:team-stats": "ts-node src/crawl-team-stats.ts",
+    "crawl:team-stats:all": "ts-node src/crawl-team-stats.ts --all"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.91.1",
