@@ -23,7 +23,7 @@ import { delay } from './utils/delay';
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || '';
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
-const PAGE_DELAY_MS = parseInt(process.env.PAGE_DELAY_MS || '3000', 10);
+const PAGE_DELAY_MS = parseInt(process.env.PAGE_DELAY_MS || '120000', 10);
 
 function log(level: string, msg: string) {
   const levels: Record<string, number> = { debug: 0, info: 1, warn: 2, error: 3 };
