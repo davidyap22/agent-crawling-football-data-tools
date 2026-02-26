@@ -384,6 +384,19 @@ async function upsertTeamStats(data: {
   log('info', `Upserted: ${data.team_name} (${data.league_name})`);
 }
 
+// ── Check existing teams in oddsflow_team_statistics ──
+
+async function getExistingTeamIds(league: string): Promise<Set<number>> {
+  const { data } = await supabase
+    .from('oddsflow_team_statistics')
+    .select('team_id')
+    .eq('league_name', league);
+
+  const set = new Set<number>();
+  for (const row of (data || [])) set.add(row.team_id);
+  return set;
+}
+
 // ── Crawl a single team ──
 
 async function crawlSingleTeam(
@@ -465,7 +478,14 @@ async function crawlLeague(
   }
 
   const matchedCount = matchResults.filter(r => r.match).length;
-  log('info', `\nMatched: ${matchedCount}/${teamRows.length} teams\n`);
+  log('info', `\nMatched: ${matchedCount}/${teamRows.length} teams`);
+
+  // Check existing (for resume)
+  const existingIds = await getExistingTeamIds(league);
+  if (existingIds.size > 0) {
+    log('info', `Already crawled: ${existingIds.size} teams in ${league} (will skip)`);
+  }
+  log('info', '');
 
   // Crawl matched teams
   let success = 0, failed = 0, skipped = 0;
@@ -474,6 +494,12 @@ async function crawlLeague(
     const { row, match } = matchResults[i];
 
     if (!match) {
+      skipped++;
+      continue;
+    }
+
+    if (existingIds.has(row.team_id)) {
+      log('info', `[${i + 1}/${matchResults.length}] SKIP (exists): ${row.team_name}`);
       skipped++;
       continue;
     }
