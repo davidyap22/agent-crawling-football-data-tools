@@ -106,6 +106,7 @@ const args = process.argv.slice(2);
 const headed = args.includes('--headed');
 const debug = args.includes('--debug');
 const allLeagues = args.includes('--all');
+const forceUpdate = args.includes('--force');
 
 if (debug) process.env.LOG_LEVEL = 'debug';
 
@@ -480,10 +481,13 @@ async function crawlLeague(
   const matchedCount = matchResults.filter(r => r.match).length;
   log('info', `\nMatched: ${matchedCount}/${teamRows.length} teams`);
 
-  // Check existing (for resume)
-  const existingIds = await getExistingTeamIds(league);
+  // Check existing (for resume, skip with --force)
+  const existingIds = forceUpdate ? new Set<number>() : await getExistingTeamIds(league);
   if (existingIds.size > 0) {
     log('info', `Already crawled: ${existingIds.size} teams in ${league} (will skip)`);
+  }
+  if (forceUpdate) {
+    log('info', `--force: will re-crawl all teams`);
   }
   log('info', '');
 
