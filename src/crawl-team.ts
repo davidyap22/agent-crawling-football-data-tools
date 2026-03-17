@@ -107,6 +107,7 @@ const args = process.argv.slice(2);
 const headed = args.includes('--headed');
 const debug = args.includes('--debug');
 const allLeagues = args.includes('--all');
+const updateMode = args.includes('--update');
 
 if (debug) process.env.LOG_LEVEL = 'debug';
 
@@ -130,6 +131,7 @@ Usage:
 Options:
   --headed    Show browser window
   --debug     Enable debug logging
+  --update    Only re-crawl existing players (update mode)
 
 Leagues: Premier League, La Liga, Bundesliga, Serie A, Ligue 1
 
@@ -664,6 +666,21 @@ async function extractStrengthsWeaknesses(page: Page): Promise<{
   }
 }
 
+// ── Get existing players from oddsflow_player_statistics (for --update mode) ──
+
+async function getExistingOddsflowPlayers(team: string): Promise<Map<number, any>> {
+  const map = new Map<number, any>();
+  const { data } = await supabase
+    .from('oddsflow_player_statistics')
+    .select('player_id, sofascore_data')
+    .eq('team_name', team);
+
+  for (const row of (data || [])) {
+    map.set(row.player_id, row.sofascore_data);
+  }
+  return map;
+}
+
 // ── Step 5: Write to oddsflow_player_statistics ──
 
 async function upsertOddsflowPlayerStats(data: {
@@ -708,6 +725,14 @@ async function crawlTeamPlayers(
     return { success: 0, failed: 0, skipped: 0 };
   }
 
+  // 1b. In --update mode, filter to only existing players
+  let existingPlayerIds: Set<number> | null = null;
+  if (updateMode) {
+    const existingMap = await getExistingOddsflowPlayers(team);
+    existingPlayerIds = new Set(existingMap.keys());
+    log('info', `--update mode: ${existingPlayerIds.size} existing players to update`);
+  }
+
   // 2. Get SofaScore ID mappings
   const playerIds = players.map(p => p.player_id);
   const mappings = await getSofascoreMappings(playerIds);
@@ -728,6 +753,13 @@ async function crawlTeamPlayers(
 
   for (let i = 0; i < players.length; i++) {
     const player = players[i];
+
+    // --update mode: skip players not in oddsflow_player_statistics
+    if (updateMode && existingPlayerIds && !existingPlayerIds.has(player.player_id)) {
+      skipped++;
+      continue;
+    }
+
     const mapping = mappings.get(player.player_id);
 
     let sofascoreId: number | null = null;

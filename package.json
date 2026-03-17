@@ -16,6 +16,7 @@
     "crawl": "ts-node src/crawl-team.ts",
     "crawl:league": "ts-node src/crawl-team.ts --league",
     "crawl:all": "ts-node src/crawl-team.ts --all",
+    "crawl:update": "ts-node src/crawl-team.ts --all --update",
     "collect:team-stats": "ts-node src/cli.ts team-stats",
     "collect:team-players": "ts-node src/cli.ts team-players",
     "collect:player-profiles": "ts-node src/cli.ts player-profiles",
